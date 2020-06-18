@@ -35,7 +35,7 @@ class Client extends BaseClient{
      * @return AlipayTradeAppPayResponse
      * @throws \Exception
      */
-    public function pay($subject, $outTradeNo, $totalAmount, $params=[]){
+    public function pay($subject, $outTradeNo, $totalAmount, $callbackParams=[], $timeout=0){
         $systemParams = [
             "method" => "alipay.trade.app.pay",
             "app_id" => $this->_getConfig("appId"),
@@ -51,9 +51,16 @@ class Client extends BaseClient{
         $bizParams = [
             "subject" => $subject,
             "out_trade_no" => $outTradeNo,
-            "total_amount" => $totalAmount,
-            "passback_params"  => urlencode(http_build_query($params))
-            ];
+            "total_amount" => $totalAmount
+        ];
+        //增加回传参数
+        if(!empty($callbackParams) && is_array($callbackParams)){
+            $bizParams["passback_params"] =  urlencode(http_build_query($callbackParams));
+        }
+        //增加超时时间 只支持分钟
+        if(0 < $timeout){
+            $bizParams['timeout_express'] = $timeout."m";
+        }
         $textParams = [];
         $sign = $this->_sign($systemParams, $bizParams, $textParams, $this->_getConfig("merchantPrivateKey"));
         $response = [
