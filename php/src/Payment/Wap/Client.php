@@ -36,7 +36,7 @@ class Client extends BaseClient{
      * @return AlipayTradeWapPayResponse
      * @throws \Exception
      */
-    public function pay($subject, $outTradeNo, $totalAmount, $quitUrl, $returnUrl){
+    public function pay($subject, $outTradeNo, $totalAmount, $quitUrl, $returnUrl, $callbackParams=[]){
         $systemParams = [
             "method" => "alipay.trade.wap.pay",
             "app_id" => $this->_getConfig("appId"),
@@ -56,6 +56,10 @@ class Client extends BaseClient{
             "quit_url" => $quitUrl,
             "product_code" => "QUICK_WAP_WAY"
             ];
+        //增加回传参数
+        if(!empty($callbackParams) && is_array($callbackParams)){
+            $bizParams["passback_params"] =  urlencode(http_build_query($callbackParams));
+        }
         $textParams = [
             "return_url" => $returnUrl
         ];
